@@ -21,18 +21,24 @@ async function initDB() {
         home VARCHAR(255)
       )`;
     await db.query(createTableQuery);
-    console.log("✅ Database-tabeller er klare!");
+    console.log(" Database is live!");
   } catch (err) {
-    console.error("❌ Feil under oppsett av database:", err);
+    console.error(" Wrong under working:", err);
   }
 }
 initDB();
 
 app.get('/', (req, res) => {
-  res.send('Hei! API-et ditt fungerer. Gå til /participants for å se data.');
+  res.json({
+    status: 'success',
+    message: 'Server is running',
+    endpoints: {
+      participants: '/participants'
+    }
+  });
 });
 
-// Hent alle deltakere 
+// Hent alle deltakerene
 app.get('/participants', async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM participants');
@@ -43,11 +49,10 @@ app.get('/participants', async (req, res) => {
   }
 });
 
-// LAdd deltager
+// Legg til ny deltake
 app.post('/participants/add', async (req, res) => {
   const { email, firstname, lastname, dob, work, home } = req.body;
   
-
   if (!email || !firstname || !lastname) {
     return res.status(400).json({ error: 'Mangler email, fornavn eller etternavn' });
   }
@@ -64,7 +69,7 @@ app.post('/participants/add', async (req, res) => {
   }
 });
 
-// Sleting av delaker
+// Slett deltaker
 app.delete('/participants/:email', async (req, res) => {
   const email = req.params.email;
   try {
@@ -76,7 +81,7 @@ app.delete('/participants/:email', async (req, res) => {
   }
 });
 
-// Starting severen
+// Start serer
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -6,6 +6,7 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
@@ -40,6 +41,7 @@ async function initDB() {
 }
 initDB();
 
+// Auth
 const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -64,6 +66,7 @@ const authenticate = async (req, res, next) => {
   }
 };
 
+// Vallidation
 function validateParticipant(data) {
   const { email, firstname, lastname, dob } = data;
   const errors = [];
@@ -85,6 +88,7 @@ function validateParticipant(data) {
   return errors;
 }
 
+// Routes for partticipants
 app.get('/', (req, res) => {
   res.json({ status: 'success', message: 'API is running' });
 });

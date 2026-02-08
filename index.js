@@ -1,87 +1,62 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const db = require('./db'); 
+const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Middleware
 app.use(cors());
 app.use(express.json());
 
 async function initDB() {
   try {
-    const createTableQuery = `
+    await db.query("DROP TABLE IF EXISTS participants");
+
+    // 2. Create Users table (for Admin)
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        username VARCHAR(255) NOT NULL UNIQUE,
+        password VARCHAR(255) NOT NULL
+      )
+    `);
+
+    await db.query(`INSERT IGNORE INTO users (username, password) VALUES ('admin', 'P4ssword')`);
+    console.log(" Admin user checked/created.");
+
+    await db.query(`
       CREATE TABLE IF NOT EXISTS participants (
         email VARCHAR(255) PRIMARY KEY,
         firstname VARCHAR(255) NOT NULL,
         lastname VARCHAR(255) NOT NULL,
-        dob DATE,
-        work VARCHAR(255),
-        home VARCHAR(255)
-      )`;
-    await db.query(createTableQuery);
-    console.log(" Database is live!");
+        dob DATE NOT NULL,
+        work_companyname VARCHAR(255),
+        work_salary INT,
+        work_currency VARCHAR(10),
+        home_country VARCHAR(255),
+        home_city VARCHAR(255)
+      )
+    `);
+    console.log(" Database tables are ready!");
+
   } catch (err) {
-    console.error(" Wrong under working:", err);
+    console.error(" Error setting up database:", err);
   }
 }
+
 initDB();
 
+// ceck if server is running
 app.get('/', (req, res) => {
   res.json({
     status: 'success',
-    message: 'Server is running',
-    endpoints: {
-      participants: '/participants'
-    }
+    message: 'Server is running with the new database structure',
   });
 });
 
-// Hent alle deltakerene
-app.get('/participants', async (req, res) => {
-  try {
-    const [rows] = await db.query('SELECT * FROM participants');
-    res.json({ data: rows });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Klarte ikke hente deltakere' });
-  }
-});
-
-// Legg til ny deltake
-app.post('/participants/add', async (req, res) => {
-  const { email, firstname, lastname, dob, work, home } = req.body;
-  
-  if (!email || !firstname || !lastname) {
-    return res.status(400).json({ error: 'Mangler email, fornavn eller etternavn' });
-  }
-
-  try {
-    await db.query(
-      'INSERT INTO participants (email, firstname, lastname, dob, work, home) VALUES (?, ?, ?, ?, ?, ?)',
-      [email, firstname, lastname, dob, work, home]
-    );
-    res.json({ message: 'Deltaker lagt til!', email: email });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Feil ved lagring (finnes e-posten fra før?)' });
-  }
-});
-
-// Slett deltaker
-app.delete('/participants/:email', async (req, res) => {
-  const email = req.params.email;
-  try {
-    await db.query('DELETE FROM participants WHERE email = ?', [email]);
-    res.json({ message: `Deltaker med e-post ${email} er slettet.` });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Klarte ikke slette deltaker' });
-  }
-});
-
-// Start serer
+// strart server
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -1,0 +1,26 @@
+{
+  "name": "mar25ft-svr-ca-1-magnussen28-",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Magnussen28/mar25ft-svr-ca-1-Magnussen28-.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Magnussen28/mar25ft-svr-ca-1-Magnussen28-/issues"
+  },
+  "homepage": "https://github.com/Magnussen28/mar25ft-svr-ca-1-Magnussen28-#readme",
+  "dependencies": {
+    "dotenv": "^17.2.4",
+    "express": "^5.2.1",
+    "mysql2": "^3.16.3"
+  }
+}
